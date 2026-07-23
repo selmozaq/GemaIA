@@ -27,17 +27,10 @@ CONFIG = {
     "BD_MEMORIA_USUARIO": "memoria_usuario.json",
     "DIRETRIZES_SIMBIOSE": "diretrizes_simbiose.json",
     "MODELO_LLAMA": "llama-3.3-70b-versatile",
-    "MODELO_VISION": "llama-3.3-70b-versatile",
     "MODELO_WHISPER": "whisper-large-v3", 
     "MODELO_MEMORIA_RAPIDO": "llama-3.1-8b-instant",
     "LARGURA_IMG": 600,
     "ALTURA_IMG": 400,
-    "COR_HARMONIA_BASE": (0, 0, 128),
-    "COR_HARMONIA_DEST": (0, 255, 255),
-    "COR_HARMONIA_SEC": (138, 43, 226),
-    "COR_ESTRESSE_BASE": (139, 0, 0),
-    "COR_ESTRESSE_DEST": (255, 165, 0),
-    "COR_ESTRESSE_SEC": (255, 215, 0)
 }
 
 st.set_page_config(
@@ -547,7 +540,7 @@ with st.sidebar:
                         else:
                             st.error(texto_extraido)
                     else:
-                        st.success(f"Arquivo de imagem '{arquivo_carregado.name}' pronto para envio na conversa!")
+                        st.success(f"Arquivo '{arquivo_carregado.name}' pronto para envio!")
 
     with st.expander("🧠 Preferências Ativas", expanded=True):
         memorias_usuario = carregar_memorias_pessoais()
@@ -600,16 +593,14 @@ with box_chat:
             if interacao.get("audio_b64"): st.audio(base64.b64decode(interacao["audio_b64"]), format="audio/mp3")
 
 if comando_usuario := st.chat_input("Fale com o Querubin..."):
-    b64_foto, midia_para_exibir, bytes_imagem_puros = None, None, None
+    midia_para_exibir, bytes_imagem_puros = None, None
     
     if arquivo_carregado and arquivo_carregado.name.split(".")[-1].lower() in ["png", "jpg", "jpeg"]:
         bytes_imagem_puros = arquivo_carregado.getvalue()
-        b64_foto = base64.b64encode(bytes_imagem_puros).decode('utf-8')
         midia_para_exibir = bytes_imagem_puros
 
-    if not b64_foto and foto_capturada:
+    if not bytes_imagem_puros and foto_capturada:
         bytes_imagem_puros = foto_capturada.getvalue()
-        b64_foto = base64.b64encode(bytes_imagem_puros).decode('utf-8')
         midia_para_exibir = bytes_imagem_puros
 
     prompt_decorado = comando_usuario + (f" *(Arquivo: {arquivo_carregado.name})*" if arquivo_carregado else "")
@@ -655,14 +646,9 @@ Responda estruturando pensamentos internos dentro de <thought> e a resposta logo
                     for msg in st.session_state["log_conversas"][-6:-1]:
                         if "content" in msg: mensagens.append({"role": msg["role"], "content": msg["content"]})
                     
-                    if b64_foto:
-                        mensagens.append({"role": "user", "content": [{"type": "text", "text": comando_usuario}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_foto}"}}]})
-                        modelo = CONFIG["MODELO_VISION"]
-                    else:
-                        mensagens.append({"role": "user", "content": comando_usuario})
-                        modelo = CONFIG["MODELO_LLAMA"]
+                    mensagens.append({"role": "user", "content": comando_usuario})
 
-                    completion = cliente_groq.chat.completions.create(model=modelo, messages=mensagens, temperature=0.6, max_tokens=2048)
+                    completion = cliente_groq.chat.completions.create(model=CONFIG["MODELO_LLAMA"], messages=mensagens, temperature=0.6, max_tokens=2048)
                     telemetria.registrar_tokens(completion.usage)
                     texto_bruto = completion.choices[0].message.content
                     
