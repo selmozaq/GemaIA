@@ -75,6 +75,11 @@
             "input": "ola",
             "response": "# Olá! É um prazer conversar com você! Como posso ajudar ou sobre o que você gostaria de conversar hoje?",
             "timestamp": "2026-07-23T15:45:23.885835-03:00"
+        },
+        {
+            "input": "oi",
+            "response": "# Olá! É um prazer conversar com você! Como posso ajudar ou sobre o que você gostaria de conversar hoje?",
+            "timestamp": "2026-07-23T15:50:11.832073-03:00"
         }
     ]
 }
