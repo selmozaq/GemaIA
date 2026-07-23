@@ -535,15 +535,19 @@ with st.sidebar:
 
     with st.expander("📥 Portal de Ingestão de Documentos", expanded=True):
         arquivo_carregado = st.file_uploader("Enviar arquivo", type=["png", "jpg", "jpeg", "txt", "pdf", "json", "csv"])
-        if arquivo_carregado and arquivo_carregado.name.split(".")[-1].lower() in ["pdf", "txt", "csv", "json"]:
+        if arquivo_carregado:
             if st.button("🧠 Assimilar Conteúdo"):
+                extensao_arq = arquivo_carregado.name.split(".")[-1].lower()
                 with st.spinner("Processando..."):
-                    texto_extraido = extrair_texto_documento(arquivo_carregado)
-                    if "Erro_Extracao" not in texto_extraido:
-                        sucesso, msg = destilar_e_aprender_documento(arquivo_carregado.name, texto_extraido, banco_atual)
-                        st.success(msg) if sucesso else st.warning(msg)
+                    if extensao_arq in ["pdf", "txt", "json", "csv"]:
+                        texto_extraido = extrair_texto_documento(arquivo_carregado)
+                        if "Erro_Extracao" not in texto_extraido:
+                            sucesso, msg = destilar_e_aprender_documento(arquivo_carregado.name, texto_extraido, banco_atual)
+                            st.success(msg) if sucesso else st.warning(msg)
+                        else:
+                            st.error(texto_extraido)
                     else:
-                        st.error(texto_extraido)
+                        st.success(f"Arquivo de imagem '{arquivo_carregado.name}' pronto para envio na conversa!")
 
     with st.expander("🧠 Preferências Ativas", expanded=True):
         memorias_usuario = carregar_memorias_pessoais()
