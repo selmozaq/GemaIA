@@ -77,7 +77,6 @@ st.markdown(
     div[data-testid="stChatMessage"] { background-color: rgba(13, 17, 33, 0.8) !important; border: 1px solid rgba(0, 242, 254, 0.1) !important; border-radius: 8px !important; }
     .tag-user { color: #00f2fe; font-weight: bold; }
     .tag-assistant { color: #b577f2; font-weight: bold; }
-    .telemetria-label { font-size: 13px; font-weight: bold; color: #9d4edd; margin-bottom: 4px; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -515,7 +514,18 @@ with st.sidebar:
         st.session_state["identidade_confirmada"] = False
         st.warning("👥 MODO VISITANTE")
         
-    with st.expander("🎙️ Escuta Ativa (Treinar com a TV)", expanded=True):
+    # 🥽 MÓDULO DE INTEGRAÇÃO COM REALIDADE VIRTUAL (QUERUBIN RV) - AGORA NO TOPO E EXPANDIDO!
+    with st.expander("🥽 Querubin RV (Ambiente Imersivo)", expanded=True):
+        st.markdown("<p style='font-size:11px; color:#aaa;'>Controle e telemetria do ambiente virtual integrado.</p>", unsafe_allow_html=True)
+        
+        st.session_state["querubin_rv_ativo"] = st.toggle("Ativar Modo RV/3D Imersivo", value=st.session_state["querubin_rv_ativo"])
+        
+        if st.session_state["querubin_rv_ativo"]:
+            tema_rv = st.selectbox("Tema do Ambiente", ["Cyberpunk Neon", "Espaço Sideral", "Laboratório Neural", "禅 Zen Minimalista"])
+            nivel_imersao = st.slider("Intensidade Sensorial", 0.0, 1.0, 0.8)
+            st.success(f"Instância '{tema_rv}' ativa (Intensidade: {int(nivel_imersao*100)}%)")
+
+    with st.expander("🎙️ Escuta Ativa (Treinar com a TV)", expanded=False):
         escuta_audio = st.audio_input("Clique para ouvir o ambiente")
         if escuta_audio:
             with st.spinner("Sincronizando áudio..."):
@@ -527,7 +537,7 @@ with st.sidebar:
                 else:
                     st.error(texto_escutado)
 
-    with st.expander("📥 Portal de Ingestão de Documentos", expanded=True):
+    with st.expander("📥 Portal de Ingestão de Documentos", expanded=False):
         arquivo_carregado = st.file_uploader("Enviar arquivo", type=["png", "jpg", "jpeg", "txt", "pdf", "json", "csv"])
         if arquivo_carregado:
             if st.button("🧠 Assimilar Conteúdo"):
@@ -543,20 +553,7 @@ with st.sidebar:
                     else:
                         st.success(f"Arquivo '{arquivo_carregado.name}' pronto para envio!")
 
-    # 🥽 MÓDULO DE INTEGRAÇÃO COM REALIDADE VIRTUAL (QUERUBIN RV)
-    with st.expander("🥽 Querubin RV (Ambiente Imersivo)", expanded=False):
-        st.markdown("<p style='font-size:11px; color:#aaa;'>Controle e telemetria do ambiente virtual integrado.</p>", unsafe_allow_html=True)
-        
-        st.session_state["querubin_rv_ativo"] = st.toggle("Ativar Ponte RV/3D", value=st.session_state["querubin_rv_ativo"])
-        
-        if st.session_state["querubin_rv_ativo"]:
-            tema_rv = st.selectbox("Tema do Ambiente", ["Cyberpunk Neon", "Espaço Sideral", "Laboratório Neural", "禅 Zen Minimalista"])
-            nivel_imersao = st.slider("Intensidade Sensorial", 0.0, 1.0, 0.8)
-            
-            if st.button("🚀 Inicializar Instância RV"):
-                st.success(f"Ambiente '{tema_rv}' sincronizado ao núcleo!")
-
-    with st.expander("🧠 Preferências Ativas", expanded=True):
+    with st.expander("🧠 Preferências Ativas", expanded=False):
         memorias_usuario = carregar_memorias_pessoais()
         if memorias_usuario:
             for mem in memorias_usuario:
@@ -568,11 +565,10 @@ with st.sidebar:
             st.markdown("<p style='font-size:11px; color:#888;'>Nenhum hábito gravado.</p>", unsafe_allow_html=True)
         
     st.markdown("---")
-    with st.expander("🎭 Estado Afetivo", expanded=True):
+    with st.expander("🎭 Estado Afetivo", expanded=False):
         st.progress(humor_atual.get("harmonia", 0.5), text=f"Harmonia: {int(humor_atual.get('harmonia', 0.5)*100)}%")
         st.progress(humor_atual.get("estresse", 0.2), text=f"Estresse: {int(humor_atual.get('estresse', 0.2)*100)}%")
 
-    # 🌌 MÓDULO VISUAL: PAISAGEM MENTAL VORONOI
     with st.expander("🌌 Paisagem Mental (Voronoi)", expanded=False):
         st.markdown("<p style='font-size:11px; color:#aaa;'>Gera o diagrama geométrico baseado no humor atual do sistema.</p>", unsafe_allow_html=True)
         if st.button("🎨 Renderizar Voronoi"):
@@ -591,18 +587,51 @@ with st.sidebar:
 st.markdown('<div class="fixed-header"><h1>Querubin OS</h1></div>', unsafe_allow_html=True)
 st.markdown('<div class="main-content-spacer"></div>', unsafe_allow_html=True)
 
-# Se o modo RV estiver ativo, exibe um painel visual imersivo no topo da área de chat
+# 🥽 RENDERIZAÇÃO DO VISUALIZADOR 3D / VR INTERATIVO NA TELA QUANDO ATIVO
 if st.session_state["querubin_rv_ativo"]:
-    st.markdown(
+    components.html(
         """
-        <div style="background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.3); padding: 10px 15px; border-radius: 8px; margin-bottom: 15px;">
-            <span style="color: #00f2fe; font-weight: bold;">🥽 STATUS DO QUERUBIN RV:</span> <span style="color: #e2e8f0;">Link Neural Ativo - Stream de Realidade Virtual Conectado ao Núcleo.</span>
+        <div style="background: linear-gradient(135deg, #0c0d19 0%, #1a0b2e 100%); border: 2px solid #00f2fe; border-radius: 12px; padding: 15px; text-align: center; color: #fff; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);">
+            <h3 style="margin: 0 0 10px 0; color: #00f2fe; text-shadow: 0 0 10px #00f2fe;">🥽 QUERUBIN RV - AMBIENTE 3D IMERSIVO ATIVO</h3>
+            <p style="font-size: 12px; color: #b577f2; margin-bottom: 12px;">Simulação tridimensional interativa conectada ao núcleo simbiótico.</p>
+            <canvas id="rvCanvas" width="700" height="220" style="background: #030306; border-radius: 8px; border: 1px solid rgba(157, 78, 221, 0.5);"></canvas>
+            <script>
+                const canvas = document.getElementById('rvCanvas');
+                const ctx = canvas.getContext('2d');
+                let angle = 0;
+                function drawGrid() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // Desenha grade cibernética em perspectiva
+                    ctx.strokeStyle = 'rgba(0, 242, 254, 0.2)';
+                    ctx.lineWidth = 1;
+                    for(let i = 0; i < canvas.width; i += 40) {
+                        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                    }
+                    for(let j = 0; j < canvas.height; j += 40) {
+                        ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+                    }
+                    // Desenha núcleo flutuante animado
+                    ctx.save();
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    ctx.rotate(angle);
+                    ctx.strokeStyle = '#9d4edd';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(-40, -40, 80, 80);
+                    ctx.strokeStyle = '#00f2fe';
+                    ctx.strokeRect(-25, -25, 50, 50);
+                    ctx.restore();
+
+                    angle += 0.02;
+                    requestAnimationFrame(drawGrid);
+                }
+                drawGrid();
+            </script>
         </div>
         """,
-        unsafe_allow_html=True
+        height=320
     )
 
-box_chat = st.container(height=520, border=False)
+box_chat = st.container(height=480, border=False)
 
 with box_chat:
     if st.session_state.get("fato_recentemente_salvo"):
