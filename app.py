@@ -514,16 +514,13 @@ with st.sidebar:
         st.session_state["identidade_confirmada"] = False
         st.warning("👥 MODO VISITANTE")
         
-    # 🥽 MÓDULO DE INTEGRAÇÃO COM REALIDADE VIRTUAL (QUERUBIN RV) - AGORA NO TOPO E EXPANDIDO!
+    # 🥽 MÓDULO DE INTEGRAÇÃO COM REALIDADE VIRTUAL (QUERUBIN RV) - VISÍVEL NO TOPO!
     with st.expander("🥽 Querubin RV (Ambiente Imersivo)", expanded=True):
-        st.markdown("<p style='font-size:11px; color:#aaa;'>Controle e telemetria do ambiente virtual integrado.</p>", unsafe_allow_html=True)
-        
+        st.markdown("<p style='font-size:11px; color:#aaa;'>Controle do ambiente virtual integrado.</p>", unsafe_allow_html=True)
         st.session_state["querubin_rv_ativo"] = st.toggle("Ativar Modo RV/3D Imersivo", value=st.session_state["querubin_rv_ativo"])
-        
         if st.session_state["querubin_rv_ativo"]:
             tema_rv = st.selectbox("Tema do Ambiente", ["Cyberpunk Neon", "Espaço Sideral", "Laboratório Neural", "禅 Zen Minimalista"])
-            nivel_imersao = st.slider("Intensidade Sensorial", 0.0, 1.0, 0.8)
-            st.success(f"Instância '{tema_rv}' ativa (Intensidade: {int(nivel_imersao*100)}%)")
+            st.success(f"Instância '{tema_rv}' ativa!")
 
     with st.expander("🎙️ Escuta Ativa (Treinar com a TV)", expanded=False):
         escuta_audio = st.audio_input("Clique para ouvir o ambiente")
@@ -594,14 +591,13 @@ if st.session_state["querubin_rv_ativo"]:
         <div style="background: linear-gradient(135deg, #0c0d19 0%, #1a0b2e 100%); border: 2px solid #00f2fe; border-radius: 12px; padding: 15px; text-align: center; color: #fff; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);">
             <h3 style="margin: 0 0 10px 0; color: #00f2fe; text-shadow: 0 0 10px #00f2fe;">🥽 QUERUBIN RV - AMBIENTE 3D IMERSIVO ATIVO</h3>
             <p style="font-size: 12px; color: #b577f2; margin-bottom: 12px;">Simulação tridimensional interativa conectada ao núcleo simbiótico.</p>
-            <canvas id="rvCanvas" width="700" height="220" style="background: #030306; border-radius: 8px; border: 1px solid rgba(157, 78, 221, 0.5);"></canvas>
+            <canvas id="rvCanvas" width="700" height="200" style="background: #030306; border-radius: 8px; border: 1px solid rgba(157, 78, 221, 0.5);"></canvas>
             <script>
                 const canvas = document.getElementById('rvCanvas');
                 const ctx = canvas.getContext('2d');
                 let angle = 0;
                 function drawGrid() {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    // Desenha grade cibernética em perspectiva
                     ctx.strokeStyle = 'rgba(0, 242, 254, 0.2)';
                     ctx.lineWidth = 1;
                     for(let i = 0; i < canvas.width; i += 40) {
@@ -610,17 +606,15 @@ if st.session_state["querubin_rv_ativo"]:
                     for(let j = 0; j < canvas.height; j += 40) {
                         ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
                     }
-                    // Desenha núcleo flutuante animado
                     ctx.save();
                     ctx.translate(canvas.width / 2, canvas.height / 2);
                     ctx.rotate(angle);
                     ctx.strokeStyle = '#9d4edd';
                     ctx.lineWidth = 3;
-                    ctx.strokeRect(-40, -40, 80, 80);
+                    ctx.strokeRect(-35, -35, 70, 70);
                     ctx.strokeStyle = '#00f2fe';
-                    ctx.strokeRect(-25, -25, 50, 50);
+                    ctx.strokeRect(-20, -20, 40, 40);
                     ctx.restore();
-
                     angle += 0.02;
                     requestAnimationFrame(drawGrid);
                 }
@@ -628,7 +622,7 @@ if st.session_state["querubin_rv_ativo"]:
             </script>
         </div>
         """,
-        height=320
+        height=300
     )
 
 box_chat = st.container(height=480, border=False)
