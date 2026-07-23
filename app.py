@@ -77,6 +77,7 @@ st.markdown(
     div[data-testid="stChatMessage"] { background-color: rgba(13, 17, 33, 0.8) !important; border: 1px solid rgba(0, 242, 254, 0.1) !important; border-radius: 8px !important; }
     .tag-user { color: #00f2fe; font-weight: bold; }
     .tag-assistant { color: #b577f2; font-weight: bold; }
+    .telemetria-label { font-size: 13px; font-weight: bold; color: #9d4edd; margin-bottom: 4px; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -90,7 +91,6 @@ if "memorias_resgatadas" not in st.session_state: st.session_state["memorias_res
 if "ultima_busca_web" not in st.session_state: st.session_state["ultima_busca_web"] = "Nenhuma busca realizada nesta sessão."
 if "identidade_confirmada" not in st.session_state: st.session_state["identidade_confirmada"] = False
 if "fato_recentemente_salvo" not in st.session_state: st.session_state["fato_recentemente_salvo"] = None
-if "querubin_rv_ativo" not in st.session_state: st.session_state["querubin_rv_ativo"] = False
 
 FUSO_BR = timezone(timedelta(hours=-3))
 
@@ -514,15 +514,7 @@ with st.sidebar:
         st.session_state["identidade_confirmada"] = False
         st.warning("👥 MODO VISITANTE")
         
-    # 🥽 MÓDULO DE INTEGRAÇÃO COM REALIDADE VIRTUAL (QUERUBIN RV) - VISÍVEL NO TOPO!
-    with st.expander("🥽 Querubin RV (Ambiente Imersivo)", expanded=True):
-        st.markdown("<p style='font-size:11px; color:#aaa;'>Controle do ambiente virtual integrado.</p>", unsafe_allow_html=True)
-        st.session_state["querubin_rv_ativo"] = st.toggle("Ativar Modo RV/3D Imersivo", value=st.session_state["querubin_rv_ativo"])
-        if st.session_state["querubin_rv_ativo"]:
-            tema_rv = st.selectbox("Tema do Ambiente", ["Cyberpunk Neon", "Espaço Sideral", "Laboratório Neural", "禅 Zen Minimalista"])
-            st.success(f"Instância '{tema_rv}' ativa!")
-
-    with st.expander("🎙️ Escuta Ativa (Treinar com a TV)", expanded=False):
+    with st.expander("🎙️ Escuta Ativa (Treinar com a TV)", expanded=True):
         escuta_audio = st.audio_input("Clique para ouvir o ambiente")
         if escuta_audio:
             with st.spinner("Sincronizando áudio..."):
@@ -534,7 +526,7 @@ with st.sidebar:
                 else:
                     st.error(texto_escutado)
 
-    with st.expander("📥 Portal de Ingestão de Documentos", expanded=False):
+    with st.expander("📥 Portal de Ingestão de Documentos", expanded=True):
         arquivo_carregado = st.file_uploader("Enviar arquivo", type=["png", "jpg", "jpeg", "txt", "pdf", "json", "csv"])
         if arquivo_carregado:
             if st.button("🧠 Assimilar Conteúdo"):
@@ -550,7 +542,7 @@ with st.sidebar:
                     else:
                         st.success(f"Arquivo '{arquivo_carregado.name}' pronto para envio!")
 
-    with st.expander("🧠 Preferências Ativas", expanded=False):
+    with st.expander("🧠 Preferências Ativas", expanded=True):
         memorias_usuario = carregar_memorias_pessoais()
         if memorias_usuario:
             for mem in memorias_usuario:
@@ -562,10 +554,11 @@ with st.sidebar:
             st.markdown("<p style='font-size:11px; color:#888;'>Nenhum hábito gravado.</p>", unsafe_allow_html=True)
         
     st.markdown("---")
-    with st.expander("🎭 Estado Afetivo", expanded=False):
+    with st.expander("🎭 Estado Afetivo", expanded=True):
         st.progress(humor_atual.get("harmonia", 0.5), text=f"Harmonia: {int(humor_atual.get('harmonia', 0.5)*100)}%")
         st.progress(humor_atual.get("estresse", 0.2), text=f"Estresse: {int(humor_atual.get('estresse', 0.2)*100)}%")
 
+    # 🌌 NOVO MÓDULO VISUAL: PAISAGEM MENTAL VORONOI
     with st.expander("🌌 Paisagem Mental (Voronoi)", expanded=False):
         st.markdown("<p style='font-size:11px; color:#aaa;'>Gera o diagrama geométrico baseado no humor atual do sistema.</p>", unsafe_allow_html=True)
         if st.button("🎨 Renderizar Voronoi"):
@@ -583,49 +576,7 @@ with st.sidebar:
 
 st.markdown('<div class="fixed-header"><h1>Querubin OS</h1></div>', unsafe_allow_html=True)
 st.markdown('<div class="main-content-spacer"></div>', unsafe_allow_html=True)
-
-# 🥽 RENDERIZAÇÃO DO VISUALIZADOR 3D / VR INTERATIVO NA TELA QUANDO ATIVO
-if st.session_state["querubin_rv_ativo"]:
-    components.html(
-        """
-        <div style="background: linear-gradient(135deg, #0c0d19 0%, #1a0b2e 100%); border: 2px solid #00f2fe; border-radius: 12px; padding: 15px; text-align: center; color: #fff; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);">
-            <h3 style="margin: 0 0 10px 0; color: #00f2fe; text-shadow: 0 0 10px #00f2fe;">🥽 QUERUBIN RV - AMBIENTE 3D IMERSIVO ATIVO</h3>
-            <p style="font-size: 12px; color: #b577f2; margin-bottom: 12px;">Simulação tridimensional interativa conectada ao núcleo simbiótico.</p>
-            <canvas id="rvCanvas" width="700" height="200" style="background: #030306; border-radius: 8px; border: 1px solid rgba(157, 78, 221, 0.5);"></canvas>
-            <script>
-                const canvas = document.getElementById('rvCanvas');
-                const ctx = canvas.getContext('2d');
-                let angle = 0;
-                function drawGrid() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.strokeStyle = 'rgba(0, 242, 254, 0.2)';
-                    ctx.lineWidth = 1;
-                    for(let i = 0; i < canvas.width; i += 40) {
-                        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-                    }
-                    for(let j = 0; j < canvas.height; j += 40) {
-                        ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
-                    }
-                    ctx.save();
-                    ctx.translate(canvas.width / 2, canvas.height / 2);
-                    ctx.rotate(angle);
-                    ctx.strokeStyle = '#9d4edd';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(-35, -35, 70, 70);
-                    ctx.strokeStyle = '#00f2fe';
-                    ctx.strokeRect(-20, -20, 40, 40);
-                    ctx.restore();
-                    angle += 0.02;
-                    requestAnimationFrame(drawGrid);
-                }
-                drawGrid();
-            </script>
-        </div>
-        """,
-        height=300
-    )
-
-box_chat = st.container(height=480, border=False)
+box_chat = st.container(height=520, border=False)
 
 with box_chat:
     if st.session_state.get("fato_recentemente_salvo"):
@@ -674,7 +625,6 @@ if comando_usuario := st.chat_input("Fale com o Querubin..."):
     system_prompt = f"""Você é o QUERUBIN OS v3.5.0, IA simbiótica de Menezes.
 Data/Hora: {agora_brasil.strftime('%d/%m/%Y %H:%M:%S')}.
 Harmonia: {int(humor_atual['harmonia']*100)}% | Estresse: {int(humor_atual['estresse']*100)}%.
-Modo RV Ativo: {st.session_state["querubin_rv_ativo"]}
 {memorias_recuperadas} {contexto_web_vivo}
 
 Responda estruturando pensamentos internos dentro de <thought> e a resposta logo em seguida. Exemplo:
